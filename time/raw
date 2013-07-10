@@ -1,0 +1,69 @@
+#! /bin/csh -f
+
+if (-e /bin/time) then
+  set timer=/bin/time
+else if (-e /usr/bin/time) then
+  set timer=/usr/bin/time
+else
+  echo "Need a time program."
+  set timer=""
+endif
+
+set run=./run
+
+rm -f timed
+
+set init=1
+set runone=6
+set blockint=7
+set blockfloat=8
+set vainit0=14
+set vainit2=15
+set vainit4=16
+set vainit8=17
+set vastart0=10
+set vastart2=11
+set vastart4=12
+set vastart8=13
+set bench_regcall=18
+set bench_immcall=19
+set bench_add=20
+set bench_load=21
+
+source configuration
+
+echo -n $config_machine $init $config_init
+$timer $run $init $config_init
+echo -n $config_machine $runone $config_runone
+$timer $run $runone $config_runone
+echo -n $config_machine $blockint $config_blockint
+$timer $run $blockint $config_blockint
+echo -n $config_machine $blockfloat $config_blockfloat
+$timer $run $blockfloat $config_blockfloat
+
+echo -n $config_machine $vainit0 $config_vainit0
+$timer $run $vainit0 $config_vainit0
+echo -n $config_machine $vainit2 $config_vainit2
+$timer $run $vainit2 $config_vainit2
+echo -n $config_machine $vainit4 $config_vainit4
+$timer $run $vainit4 $config_vainit4
+echo -n $config_machine $vainit8 $config_vainit8
+$timer $run $vainit8 $config_vainit8
+
+echo -n $config_machine $vastart0 $config_vastart0
+$timer $run $vastart0 $config_vastart0
+echo -n $config_machine $vastart2 $config_vastart2
+$timer $run $vastart2 $config_vastart2
+echo -n $config_machine $vastart4 $config_vastart4
+$timer $run $vastart4 $config_vastart4
+echo -n $config_machine $vastart8 $config_vastart8
+$timer $run $vastart8 $config_vastart8
+
+echo -n $config_machine $bench_regcall $config_bcall_reg
+$timer $run $bench_regcall $config_bcall_reg
+echo -n $config_machine $bench_immcall $config_bcall_imm
+$timer $run $bench_immcall $config_bcall_imm
+echo -n $config_machine $bench_add $config_b_add
+$timer $run $bench_add $config_b_add
+echo -n $config_machine $bench_load $config_b_load
+$timer $run $bench_load $config_b_load

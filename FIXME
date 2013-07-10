@@ -1,0 +1,88 @@
+[Using QT on some OSs -- allocate N kernel threads, suspend,
+then use their stacks.]
+
+To: "Scott W. Bradley" <ScottWB@BeComm.com>
+cc: Guy in Au <guy@clearwater.com.au>
+From: pardo@pardo.net
+Subject: Re: QuickThreads 
+In-reply-to: Your message of "Wed, 10 Apr 2002 12:55:58 PDT."
+             <A9DFD9380C01D4118E740050DA7A897056B045@becomm-mis2.becomm.com> 
+Date: Thu, 11 Apr 2002 00:48:34 +0000
+Sender: pardo
+
+>[Allocate and suspend a theread, steal it's stack.]
+
+Now that's using your noodle!  Cool!  Thanks for the note and I'll try
+to keep it in mind.
+
+	;-D on  ( Keep Hit Inn Minde )  Pardo
+
+
+
+
+Date: Sun, 8 Dec 2002 22:06:08 +0100
+Subject: incorrect pointer operation qt v2?
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v548)
+From: Marco Bucci <marco.bucci@inwind.it>
+To: qt-0001@pardo.net
+Content-Transfer-Encoding: 7bit
+In-Reply-To: <3D2AEE270290E82F@ims9a.libero.it> (added by postmaster@libero.it)
+Message-Id: <DF17DE9C-0AF0-11D7-9FF6-0030658DC216@inwind.it>
+X-Mailer: Apple Mail (2.548)
+
+Dear David,
+
+I'm debugging the linuxPPC version (yes, in the end I toke it as 
+challenge and I'm doing both the ppc versions). I hope to finish today. 
+After that I'm so late in my job that I will not have more time... :-/
+
+May be I found that bug that affects  last qt version. Really I already 
+found it, but I didn't wand disturb you because I believed that the 
+condition in which the bug could "arise" should never happen.
+
+ANYWAY IN BRIEF:
+
+
+In meas.c, t_alloc allocates the memory block for the thread:
+
+   t->stk = malloc (ssz);
+
+then it rounds the pointer:
+
+   t->stk = (void *)ROUND (((iaddr_t)t->stk), QT_STKALIGN);
+
+Since t->stk is used by t_free to dispose the thread memory block, I 
+believe this is incorrect and in facts, sometimes I get a "segmentation 
+fault" during the t_free execution. Actually the same fault can be 
+forced just setting:
+
+t->stk = t->stk + QT_STKALIGN;
+
+and not because the stack is not aligned, but because the pointer is 
+not anymore a legal pointer of a malloc allocated block.
+
+
+I don't know if this is the problem of qt version 2, anyway in version, 
+1 that rounding was not performed (I checked to to have confirm, but I 
+was sure of it). This is the typical "random" bug that make people 
+crazy :-)
+What is a bit strange is that pointers returned by malloc should be 
+page aligned (but I'm not sure of it). Anyway, the compiler is free to 
+handle the memory allocation just respecting the minimal alignment 
+rules (4 bytes usually). So, we are not guarantee that t->stk will be 
+aligned respecting the stack rules.
+
+Ok, now I'm running to finish and I cannot try solutions, but, the most 
+trivial solution is to save the original malloc pointer to use it with 
+the free function.
+
+Ok, now I run. I want finish.
+
+
+Sincerely
+
+
+Marco
+
+
